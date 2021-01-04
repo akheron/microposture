@@ -13,6 +13,14 @@ A program for 2 [micro:bit] devices for monitoring your back posture.
   of your monitor. This device presumably needs more power, so it might be
   beneficial to power it from USB.
 
+Here's a photo of my setup:
+
+![](photo.jpg)
+
+I used iron wire to make it possible to strap the sensor and the battery pack to
+the collar of my shirt. Plastic tape is used to cover the pins and stuff that
+might itch or irritate the skin.
+
 ## Usage
 
 - Turn on both devices.
