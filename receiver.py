@@ -1,7 +1,14 @@
-from microbit import Image, button_a, display, sleep
+from microbit import Image, button_a, button_b, display, sleep
 import math
 import radio
 import utime
+
+# Configuration
+
+HUNCH_ANGLE_THRESHOLD = 3  # degrees
+HUNCH_TIMEOUT = 15000  # ms
+SENSOR_TIMEOUT = 25000  # ms
+
 
 # 3-dimensional vector operations
 
@@ -30,10 +37,12 @@ def vec3_dot(vec_a, vec_b):
     return vec_a.x * vec_b.x + vec_a.y * vec_b.y + vec_a.z * vec_b.z
 
 
+# The non-negative angle between vec_a and vec_b in degrees
 def vec3_angle(vec_a, vec_b):
-    return math.acos(
+    rad = math.acos(
         vec3_dot(vec_a, vec_b) / math.sqrt(vec_a.length2() * vec_b.length2())
     )
+    return round(abs(math.degrees(rad)))
 
 
 # Time helpers
@@ -75,6 +84,13 @@ def blink():
     for y in range(5):
         for x in range(5):
             display.set_pixel(x, y, value)
+
+
+def flash(duration):
+    clear()
+    blink()
+    sleep(duration)
+    clear()
 
 
 def point_to_a():
@@ -132,8 +148,20 @@ class TimeoutError(Exception):
 
 
 def start():
+    show_arrow = True
     point_to_a()
-    while not button_a.was_pressed():
+    while True:
+        if button_a.was_pressed():
+            break
+
+        # Toggle the arrow by pressing B
+        if button_b.was_pressed():
+            show_arrow = not show_arrow
+            if show_arrow:
+                point_to_a()
+            else:
+                clear()
+
         sleep(100)
 
 
@@ -143,38 +171,35 @@ def calibrate():
     for i in range(5):
         dots(5 - i)
         values.append(receive(timeout=8000))
-    clear()
+
+    flash(300)
 
     # use the last 3 measurements for calibration
     return vec3_avg(values[-3:])
 
 
-ANGLE_THRESHOLD = 3
-HUNCHES_THRESHOLD = 3
-
-
 def run(down):
     last_seen = now()
-    hunches = 0
+    hunch_start = None
 
     while True:
         value = maybe_receive()
         if value:
             last_seen = now()
-            angle = round(abs(math.degrees(vec3_angle(down, value))))
-            if angle >= ANGLE_THRESHOLD:
-                hunches += 1
+            angle = vec3_angle(down, value)
+            if angle >= HUNCH_ANGLE_THRESHOLD:
+                hunch_start = hunch_start or now()
             else:
-                hunches = 0
+                hunch_start = None
             dots(angle)
 
-        if hunches >= HUNCHES_THRESHOLD:
+        if hunch_start and since(hunch_start) >= HUNCH_TIMEOUT:
             blink()
 
-        if since(last_seen) > 10000:
+        if since(last_seen) > SENSOR_TIMEOUT:
             raise TimeoutError()
 
-        sleep(300)
+        sleep(100)
 
 
 def main():

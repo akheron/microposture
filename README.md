@@ -27,23 +27,47 @@ might itch or irritate the skin.
 ## Usage
 
 - Turn on both the sensor and the display device.
-- The display shows an arrow at button A. Press it.
-- Calibration begins. Sit or stand up staight until the display flashes all
-  LEDs once. The program has now been calibrated.
+- The display shows an arrow pointing at button A. Press A to start calibration,
+  or B to hide/show the arrow.
+- Sit or stand up straight during calibration. The LEDs show a countdown, and
+  when the calibration finishes, all the LEDs flash once.
 - Now sit or stand with the same, good posture. The display shows how big a
   difference your posture has compared to the calibrated reference by drawing a
   a few dots. The more dots there are, the worse your posture is.
-- If your posture crosses a threshold for about 10 seconds, the display starts
-  flashing and you should correct your posture. Once the posture is good again,
-  the flashing stops.
-- If the display starts showing an arrow at button A again, it means that the
-  sensor hasn't sent any measurements for about 10 seconds. Check that the
-  sensor has power and start over at calibration.
+- If your posture crosses a threshold for about 15 seconds (configurable), the
+  display starts flashing and you should correct your posture. Once the posture
+  is good again, the flashing stops.
+- If the display starts showing an arrow pointing at button A again, it means
+  that the display hasn't received any measurements from the sensor for about 30
+  seconds (configurable). Check that the sensor has power and start over at
+  calibration, or increase the sensor transmit power (see below).
+
+## Configuration
+
+Both `sensor.py` and `receiver.py` have configuration variables near the top of
+the file which you can adjust to your liking.
+
+`sensor.py`:
+
+* `TX_INTERVAL` (ms): How often to send accelerometer readings
+* `TX_POWER` (0..7): Transmit power
+
+`receiver.py`
+
+* `HUNCH_ANGLE_THRESHOLD` (degrees): How many degrees of posture change is allowed
+* `HUNCH_TIMEOUT` (ms): How many milliseconds of bad posture is allowed
+* `SENSOR_TIMEOUT` (ms): How many milliseconds of not receiving measurements to
+  restart from calibration
+
+Configuration changes take place after re-flashing the corresponding device.
 
 ## Background
 
 I've always had a bad posture. After reading about the [Upright Go 2], I wanted
 to build something similar with parts I already have.
+
+I personally use this system when sitting or standing on my desk, working at my
+computer.
 
 ## How it works
 

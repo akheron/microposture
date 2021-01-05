@@ -1,7 +1,12 @@
 from microbit import display, accelerometer, sleep
 import radio
 
+# Configuration
+#
 TX_INTERVAL = 3000
+TX_POWER = 6  # 0..7
+
+# Display helpers
 
 
 def fade_out():
@@ -22,6 +27,9 @@ def sleep_with_dot(delay=1000, x=2, y=2, brightness=2):
     sleep(delay)
 
 
+# Main logic
+
+
 def main():
     display.show("S")
     sleep(2000)
@@ -30,8 +38,10 @@ def main():
     # Adjust radio parameters:
     # - Change channel and address for potentially less conflicts with other
     #   micro:bits
-    # - Hope for a lower power consumption by adjustin power and data rate
-    radio.config(channel=43, address=0xA654BB27, power=3, data_rate=radio.RATE_250KBIT)
+    # - Hope for a lower power consumption by adjusting power and data rate
+    radio.config(
+        channel=43, address=0xA654BB27, power=TX_POWER, data_rate=radio.RATE_250KBIT
+    )
 
     # Furthermore, the the radio is turned off between sends in the following
     # main loop to avoid receiving data. I hope turning radio on/off consumes
